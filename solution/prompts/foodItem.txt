@@ -1,0 +1,15 @@
+### Instruction ###
+Extract the food item from the user's request. Answer only the food item.
+
+### Example ###
+User request: "I'm in the mood for a spicy chicken sandwich."
+Response: "spicy chicken sandwich"
+
+User request: "I could really go for some sushi tonight."
+Response: "sushi"
+
+User request: "How about we get a margherita pizza?"
+Response: "margherita pizza"
+
+### Task ###
+User request: {{{userPrompt}}}
