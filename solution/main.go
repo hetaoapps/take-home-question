@@ -1,14 +1,22 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"log"
+	"main/cache"
+	"main/database"
 	"main/handlers"
-
 	"main/services"
 	"main/utils"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"go.uber.org/fx"
 )
 
@@ -21,6 +29,8 @@ func main() {
 	app := fx.New(
 		fx.Provide(
 			gin.New,
+			database.NewPostgresDB,
+			cache.NewRedisClient,
 			utils.NewHTTPClient,
 			utils.NewOpenAIClient,
 			services.NewUberEatsService,
@@ -32,7 +42,29 @@ func main() {
 	app.Run()
 }
 
-func bootstrap(router *gin.Engine, handler *handlers.RecommendationHandler) {
-	router.GET("/recommendations", handler.GetRecommendations)
-	router.Run("localhost:8080")
+func bootstrap(router *gin.Engine, handler *handlers.RecommendationHandler, db *sql.DB, redisClient *redis.Client) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	err := db.Ping()
+	if err != nil {
+		log.Fatalf("Could not connect to the database: %v", err)
+	}
+
+	err = cache.Ping(redisClient, ctx)
+	if err != nil {
+		log.Fatalf("Could not connect to Redis: %v", err)
+	}
+
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+		cancel()
+	}()
+
+	router.GET("/recommendations", func(c *gin.Context) {
+		handler.GetRecommendations(c)
+	})
+	router.Run(":8080")
 }

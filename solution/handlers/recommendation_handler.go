@@ -23,15 +23,9 @@ func (h *RecommendationHandler) GetRecommendations(c *gin.Context) {
 		return
 	}
 
-	food, err := h.uberEatsService.GetFoodItemFromPrompt(prompt)
+	recommendations, err := h.uberEatsService.GetRecommendations(prompt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process prompt"})
-		return
-	}
-
-	recommendations, err := h.uberEatsService.GetRecommendationsFromUberEats(food)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get recommendations"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

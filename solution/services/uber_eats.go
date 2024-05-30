@@ -2,30 +2,13 @@ package services
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
-	"strings"
 
 	"main/models"
-
-	openai "github.com/sashabaranov/go-openai"
 )
-
-type UberEatsService struct {
-	openaiClient *openai.Client
-	httpClient   *http.Client
-}
-
-func NewUberEatsService(openaiClient *openai.Client, httpClient *http.Client) *UberEatsService {
-	return &UberEatsService{
-		openaiClient: openaiClient,
-		httpClient:   httpClient,
-	}
-}
 
 func (s *UberEatsService) GetRecommendationsFromUberEats(food string) ([]models.Recommendation, error) {
 	url := "https://www.ubereats.com/_p/api/getSearchFeedV1?localeCode=ca"
@@ -107,37 +90,7 @@ func (s *UberEatsService) GetRecommendationsFromUberEats(food string) ([]models.
 		recommendations[i].Store.MenuItem = menuItems
 	}
 
-	fmt.Println(recommendations)
-
 	return recommendations, nil
-}
-
-func (s *UberEatsService) GetFoodItemFromPrompt(prompt string) (string, error) {
-	promptContent, err := os.ReadFile("./prompts/foodItem.txt")
-	if err != nil {
-		return "", fmt.Errorf("failed to read prompt file: %w", err)
-	}
-
-	promptString := string(promptContent)
-	promptToLLM := strings.Replace(promptString, "{{{userPrompt}}}", prompt, -1)
-
-	resp, err := s.openaiClient.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: promptToLLM,
-				},
-			},
-		},
-	)
-	if err != nil {
-		return "", fmt.Errorf("failed to get chat completion: %w", err)
-	}
-
-	return resp.Choices[0].Message.Content, nil
 }
 
 func (s *UberEatsService) getMenuItemFromStore(storeID string) ([]models.MenuItem, error) {
