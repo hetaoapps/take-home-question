@@ -55,7 +55,7 @@ func JaccardSimilarity(str1, str2 string) float64 {
 	return float64(intersection) / float64(union)
 }
 
-func getSimilarity(query1, query2 string) float64 {
+func GetSimilarity(query1, query2 string) float64 {
 	normalizedQuery1 := NormalizeText(query1)
 	normalizedQuery2 := NormalizeText(query2)
 

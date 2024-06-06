@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   postgres:
@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+ 
 
   redis:
     image: redis:latest
@@ -19,24 +20,35 @@ services:
     ports:
       - "6379:6379"
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: six_go
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      - redis
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: six_go
+  #   environment:
+  #     POSTGRES_USER: myuser
+  #     POSTGRES_PASSWORD: mypassword
+  #     POSTGRES_DB: mydb
+  #     POSTGRES_HOST: postgres
+  #     POSTGRES_PORT: 5432
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - postgres
+  #     - redis
+
+  # dbmate:
+  #   image: amacneil/dbmate:latest
+  #   container_name: dbmate
+  #   environment:
+  #     DATABASE_URL: postgres://myuser:mypassword@postgres:5432/mydb?sslmode=disable
+  #   volumes:
+  #     - ./db/migrations:/db/migrations
+  #   depends_on:
+  #     - postgres
+  #   entrypoint: ["sh", "-c", "dbmate wait && dbmate up"]
 
 volumes:
   postgres_data:

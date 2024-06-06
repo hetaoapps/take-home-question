@@ -23,7 +23,7 @@ func (h *RecommendationHandler) GetRecommendations(c *gin.Context) {
 		return
 	}
 
-	recommendations, err := h.uberEatsService.GetRecommendations(prompt)
+	recommendations, err := h.uberEatsService.GetRecommendations(c.Request.Context(), prompt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

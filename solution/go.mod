@@ -5,7 +5,6 @@ go 1.22.0
 require github.com/gin-gonic/gin v1.10.0
 
 require (
-	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/kr/pretty v0.1.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect

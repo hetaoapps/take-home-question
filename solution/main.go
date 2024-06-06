@@ -4,8 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
-	"main/cache"
-	"main/database"
+	"main/db"
 	"main/handlers"
 	"main/services"
 	"main/utils"
@@ -29,8 +28,8 @@ func main() {
 	app := fx.New(
 		fx.Provide(
 			gin.New,
-			database.NewPostgresDB,
-			cache.NewRedisClient,
+			db.NewPostgresDB,
+			utils.NewRedisClient,
 			utils.NewHTTPClient,
 			utils.NewOpenAIClient,
 			services.NewUberEatsService,
@@ -49,11 +48,15 @@ func bootstrap(router *gin.Engine, handler *handlers.RecommendationHandler, db *
 	err := db.Ping()
 	if err != nil {
 		log.Fatalf("Could not connect to the database: %v", err)
+	} else {
+		log.Println("Connected to the database successfully")
 	}
 
-	err = cache.Ping(redisClient, ctx)
+	err = utils.Ping(redisClient, ctx)
 	if err != nil {
 		log.Fatalf("Could not connect to Redis: %v", err)
+	} else {
+		log.Println("Connected to redis successfully")
 	}
 
 	go func() {
